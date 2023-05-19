@@ -429,7 +429,7 @@ func (p *parser) doImport() error {
 		nodes = matches
 	}
 
-	nodeName := p.Token().originalFile()
+	nodeName := p.File()
 	if p.Token().snippetName != "" {
 		nodeName += fmt.Sprintf(":%s", p.Token().snippetName)
 	}
@@ -447,11 +447,11 @@ func (p *parser) doImport() error {
 	// golang for range slice return a copy of value
 	// similarly, append also copy value
 	for _, token := range importedTokens {
-		// set the token's file to refer to import directive line number and snippet name
+		// update the token's imports to refer to import directive line number and snippet name
 		if token.snippetName != "" {
-			token.updateFile(fmt.Sprintf("%s:%d (import %s)", token.File, p.Line(), token.snippetName))
+			token.imports = append(token.imports, fmt.Sprintf("%d (import %s)", p.Line(), token.snippetName))
 		} else {
-			token.updateFile(fmt.Sprintf("%s:%d (import)", token.File, p.Line()))
+			token.imports = append(token.imports, fmt.Sprintf("%d (import)", p.Line()))
 		}
 
 		foundVariadic, startIndex, endIndex := parseVariadic(token, len(args))

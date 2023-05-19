@@ -20,6 +20,7 @@ import (
 	"io"
 	"log"
 	"strconv"
+	"strings"
 )
 
 // Dispenser is a type that dispenses tokens, similarly to a lexer,
@@ -398,7 +399,9 @@ func (d *Dispenser) ArgErr() error {
 // SyntaxErr creates a generic syntax error which explains what was
 // found and what was expected.
 func (d *Dispenser) SyntaxErr(expected string) error {
-	msg := fmt.Sprintf("%s:%d - Syntax error: Unexpected token '%s', expecting '%s'", d.File(), d.Line(), d.Val(), expected)
+	var fileParts = []string{d.File()}
+	fileParts = append(fileParts, d.Token().imports...)
+	msg := fmt.Sprintf("%s:%d - Syntax error: Unexpected token '%s', expecting '%s'", strings.Join(fileParts, ":"), d.Line(), d.Val(), expected)
 	return errors.New(msg)
 }
 
@@ -420,7 +423,9 @@ func (d *Dispenser) Errf(format string, args ...any) error {
 
 // WrapErr takes an existing error and adds the Caddyfile file and line number.
 func (d *Dispenser) WrapErr(err error) error {
-	return fmt.Errorf("%s:%d - Error during parsing: %w", d.File(), d.Line(), err)
+	var fileParts = []string{d.File()}
+	fileParts = append(fileParts, d.Token().imports...)
+	return fmt.Errorf("%s:%d - Error during parsing: %w", strings.Join(fileParts, ":"), d.Line(), err)
 }
 
 // Delete deletes the current token and returns the updated slice
