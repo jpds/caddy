@@ -399,9 +399,7 @@ func (d *Dispenser) ArgErr() error {
 // SyntaxErr creates a generic syntax error which explains what was
 // found and what was expected.
 func (d *Dispenser) SyntaxErr(expected string) error {
-	var fileParts = []string{d.File()}
-	fileParts = append(fileParts, d.Token().imports...)
-	msg := fmt.Sprintf("%s:%d - Syntax error: Unexpected token '%s', expecting '%s'", strings.Join(fileParts, ":"), d.Line(), d.Val(), expected)
+	msg := fmt.Sprintf("%s:%d - Syntax error: Unexpected token '%s', expecting '%s', import chain: ['%s']", d.File(), d.Line(), d.Val(), expected, strings.Join(d.Token().imports, "','"))
 	return errors.New(msg)
 }
 
@@ -423,9 +421,7 @@ func (d *Dispenser) Errf(format string, args ...any) error {
 
 // WrapErr takes an existing error and adds the Caddyfile file and line number.
 func (d *Dispenser) WrapErr(err error) error {
-	var fileParts = []string{d.File()}
-	fileParts = append(fileParts, d.Token().imports...)
-	return fmt.Errorf("%s:%d - Error during parsing: %w", strings.Join(fileParts, ":"), d.Line(), err)
+	return fmt.Errorf("%s:%d - Error during parsing: %w, import chain: ['%s']", d.File(), d.Line(), err, strings.Join(d.Token().imports, "','"))
 }
 
 // Delete deletes the current token and returns the updated slice

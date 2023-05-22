@@ -447,11 +447,11 @@ func (p *parser) doImport() error {
 	// golang for range slice return a copy of value
 	// similarly, append also copy value
 	for _, token := range importedTokens {
-		// update the token's imports to refer to import directive line number and snippet name
+		// update the token's imports to refer to import directive filename, line number and snippet name if there is one
 		if token.snippetName != "" {
-			token.imports = append(token.imports, fmt.Sprintf("%d (import %s)", p.Line(), token.snippetName))
+			token.imports = append(token.imports, fmt.Sprintf("%s:%d (import %s)", p.File(), p.Line(), token.snippetName))
 		} else {
-			token.imports = append(token.imports, fmt.Sprintf("%d (import)", p.Line()))
+			token.imports = append(token.imports, fmt.Sprintf("%s:%d (import)", p.File(), p.Line()))
 		}
 
 		foundVariadic, startIndex, endIndex := parseVariadic(token, len(args))
